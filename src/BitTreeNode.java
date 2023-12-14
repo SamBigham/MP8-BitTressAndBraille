@@ -15,7 +15,7 @@ class BitTreeNode {
   /**
    * The associated value.
    */
-  int value;
+  String value;
 
   /**
    * The left subtree.
@@ -36,7 +36,7 @@ class BitTreeNode {
   /**
    * Create a new node.
    */
-  public BitTreeNode(int value) {
+  public BitTreeNode(String value) {
     //this.key = key;
     this.value = value;
     this.left = null;
