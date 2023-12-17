@@ -1,7 +1,9 @@
-/**
- * Nodes in a binary search tree.
- */
 class BitTreeNode {
+
+    /**
+     * @author Sam Bigham
+     * Code for the BitTreeNodes
+     */
 
   // +--------+------------------------------------------------------
   // | Fields |

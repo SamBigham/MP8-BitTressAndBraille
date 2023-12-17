@@ -12,9 +12,19 @@ import org.w3c.dom.Node;
 public class BitTree {
 
     /**
+     * @author Sam Bigham
+     *         Code for the Bit Tree
+     */
+
+    /**
      * The size of the tree.
      */
     int size;
+
+    /**
+     * how many elements are in the tree
+     */
+    int length;
 
     /**
      * The root of our tree. Initialized to null for an empty tree.
@@ -48,35 +58,27 @@ public class BitTree {
     }
 
     public void set(String bits, String value) throws Exception {
+
         // this.root = new BitTreeNode(2);
         set(bits, value, this.root);
     }
 
     void set(String bits, String value, BitTreeNode node) throws Exception {
+        // System.out.println("bits is : " + bits);
         BitTreeNode curNode = node;
         if (!areNumbers(bits)) {
             throw new Exception("string doesn't only have numbers");
         }
-        
-        if (curNode.left == null && curNode.right == null) {
-            // System.out.println("at end of tree");
-
-            
-
-            if (bits.length() == 0) {
-                System.out.println("in double null");
-                System.out.println(curNode.value);
-                throw new Exception("bits length == 0");
-            }
-
+        if (bits.length() == 1) {
             if (bits.charAt(0) == '1') {
                 curNode.left = new BitTreeNode(value);
                 curNode.left.value = value;
             } else {
                 curNode.right = new BitTreeNode(value);
             }
+            this.length++;
             return;
-        } // if
+        }
 
         if (bits.length() == 0) {// null case
             System.out.println("bits length = 0 possible error expected");
@@ -91,7 +93,7 @@ public class BitTree {
             // System.out.println(curNode.right.value);
             set(bits.substring(1), value, curNode.right);
         }
-    }//set
+    }// set
 
     String get(String bits) throws Exception {
         if (bits.length() <= size) {
@@ -104,7 +106,7 @@ public class BitTree {
         return str;
     }
 
-    String get(String bits, BitTreeNode node) {
+    String get(String bits, BitTreeNode node) throws Exception {
         BitTreeNode curNode = node;
         String str;
 
@@ -112,8 +114,14 @@ public class BitTree {
             // System.out.println("at end of tree");
 
             if (bits.charAt(0) == '1') {
+                if (curNode.left == null) {
+                    throw new Exception("curNode.left is null");
+                }
                 str = String.valueOf(curNode.left.value);
             } else {
+                if (curNode.right == null) {
+                    throw new Exception("curNode.right is null");
+                }
                 str = String.valueOf(curNode.right.value);
             }
             return str;
@@ -142,9 +150,12 @@ public class BitTree {
 
     void dump(PrintWriter pen, BitTreeNode node, int[] progress, int n) {
         BitTreeNode curNode = node;
+        // if(progress.length > n) {
+        // return;
+        // }
 
         if (curNode.right != null && curNode.left != null) {
-            // System.out.println(curNode.value);
+
             progress[n] = 0;
             int i = n;
             dump(pen, curNode.right, progress, ++n);
@@ -152,40 +163,63 @@ public class BitTree {
             progress[i] = 1;
             dump(pen, curNode.left, progress, ++i);
 
-        } else if (curNode.right != null) {
-            progress[n] = 0;
-            n++;
-            dump(pen, curNode.right, progress, n);
-            // System.out.println("else if right" + curNode.right.value);
-            pen.println(arrToString(progress) + "," + curNode.right.value);
+            /**if statement is rather clunky and should be improved if I can figure out how
+             * This is for the unique situation when we're at the end of the tree, but both values of the 
+             * children are not null
+            */
+            if(curNode.right.right == null && 
+            curNode.right.left == null &&
+             curNode.left.left == null &&
+             curNode.left.right == null && 
+             curNode.left.value != null &&
+             curNode.right.value != null) {
+                progress[progress.length -1] = 0;
+                pen.println(arrToString(progress) + "," + curNode.right.value);
+                progress[progress.length -1] = 1;
+                pen.println(arrToString(progress) + "," + curNode.left.value);
+            }
 
-        } else if (curNode.left != null) {
-            progress[n] = 1;
-            n++;
-            dump(pen, curNode.left, progress, n);
-            // System.out.println("else if left" + curNode.left.value);
-            pen.println(arrToString(progress) + "," + curNode.left.value);
-        }
+        } else if (curNode.right != null || curNode.left != null) {
+            if (curNode.right != null) {
+                progress[n] = 0;
+                n++;
+                dump(pen, curNode.right, progress, n);
+                 pen.println(arrToString(progress) + "," + curNode.right.value);
+            }
+            if (curNode.left != null) {
+                progress[n] = 1;
+                n++;
+                dump(pen, curNode.left, progress, n);
+
+                pen.println(arrToString(progress) + "," + curNode.left.value);
+            }
+        } 
     }// dump
 
     void load(BufferedReader source) throws IOException {
 
-        String str = "";
+        String str;
         String[] strArr = new String[2];
-     
+
         do {
             str = source.readLine();
+
             if (str != null) {
-                strArr = str.split(",");
-                try {
-                    set(strArr[0], strArr[1]);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+                if (str.length() > 1) {
+                    strArr = str.split(",");
+                    try {
+                        // System.out.println("strArr[0] is : "+ strArr[0] + " strarr[1] is : " +
+                        // strArr[1] );
+                        this.set(strArr[0], strArr[1]);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } // try...catch
+                } // if
+            } // if
         } while (str != null);
 
-    }//load
+    }// load
 
     boolean areNumbers(String str) {
 
